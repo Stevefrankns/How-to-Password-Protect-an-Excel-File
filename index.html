@@ -1,0 +1,1063 @@
+<!-- Replace YOUR-DOMAIN.com before launch -->
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>How to Password Protect an Excel File — Opening and Editing</title>
+<meta content="Learn how to password protect an Excel file from opening or editing. A complete guide comparing native AES-256 encryption, permissions, and third-party tools." name="description"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<style>
+        :root {
+            --bg: #F0F4FF;
+            --card-1: #1A2B4A;
+            --card-2: #2E5BA8;
+            --card-3: #FFFFFF;
+            --card-4: #F7F9FF;
+            --card-5: #1A2B4A;
+            --primary: #3B82F6;
+            --secondary: #F59E0B;
+            --navy: #1A2B4A;
+            --light: #F7F9FF;
+            --white: #FFFFFF;
+            --border: rgba(26, 43, 74, 0.14);
+            --muted: rgba(26, 43, 74, 0.68);
+            --shadow: 0 36px 80px rgba(26, 43, 74, 0.18);
+            --radius: 34px;
+            --font-heading: 'Plus Jakarta Sans', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --max-reading-width: 720px;
+            --max-wide-width: 1060px;
+            --transition-speed: 0.28s;
+            --card-progress: 0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-snap-type: y proximity; background: var(--bg); }
+        body {
+            min-height: 100vh;
+            font-family: var(--font-body);
+            color: var(--navy);
+            background:
+                radial-gradient(circle at 8% 18%, rgba(59,130,246,0.16), transparent 32vw),
+                radial-gradient(circle at 92% 82%, rgba(245,158,11,0.12), transparent 30vw),
+                var(--bg);
+            line-height: 1.8;
+            font-size: 17px;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image: linear-gradient(rgba(26,43,74,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(26,43,74,0.035) 1px, transparent 1px);
+            background-size: 44px 44px;
+            mask-image: radial-gradient(circle at center, black, transparent 78%);
+            z-index: 0;
+        }
+
+        h1, h2, h3, h4, h5, .nav-logo, .toc-title, .ui-label {
+            font-family: var(--font-heading);
+            line-height: 1.08;
+            margin-bottom: 1rem;
+            letter-spacing: -0.035em;
+        }
+        h1 { font-size: clamp(38px, 6vw, 60px); font-weight: 800; color: #fff; max-width: 850px; }
+        h2 { font-size: clamp(32px, 4.3vw, 48px); font-weight: 800; }
+        h3 { font-size: clamp(22px, 2.2vw, 28px); font-weight: 700; margin-top: 2rem; }
+        h4 { font-size: 1.2rem; font-weight: 800; }
+        p { margin-bottom: 1.35rem; }
+        ul, ol { margin-bottom: 1.5rem; padding-left: 1.35rem; }
+        li { margin-bottom: 0.55rem; }
+        strong { font-weight: 800; }
+        em { font-style: italic; }
+
+        a { color: inherit; text-decoration-thickness: 0.08em; text-underline-offset: 0.18em; font-weight: 700; transition: color var(--transition-speed), opacity var(--transition-speed), background var(--transition-speed), transform var(--transition-speed); }
+        a:hover { color: var(--secondary); }
+        img { max-width: 100%; height: auto; }
+
+        .container { max-width: var(--max-reading-width); margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+        .container-wide { max-width: var(--max-wide-width); margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+
+        header {
+            position: fixed; top: 18px; left: 0; right: 0;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        .nav-container {
+            width: min(1160px, calc(100% - 32px));
+            margin: 0 auto;
+            min-height: 62px;
+            padding: 10px 14px 10px 12px;
+            display: flex; align-items: center; justify-content: space-between; gap: 20px;
+            border: 1px solid rgba(255,255,255,0.34);
+            background: rgba(255,255,255,0.76);
+            backdrop-filter: blur(18px);
+            border-radius: 999px;
+            box-shadow: 0 18px 48px rgba(26, 43, 74, 0.16);
+            pointer-events: auto;
+        }
+        .nav-logo { display: inline-flex; align-items: center; margin: 0; text-decoration: none; flex: 0 0 auto; }
+        .brand-logo { display: block; height: 42px; width: auto; object-fit: contain; }
+        .nav-links { display: flex; gap: 6px; align-items: center; }
+        .nav-links a {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-height: 40px; padding: 0 14px;
+            border-radius: 999px;
+            font-size: 12px; letter-spacing: 0.11em; text-transform: uppercase;
+            color: var(--navy); text-decoration: none;
+        }
+        .nav-links a:hover { background: rgba(59,130,246,0.10); color: var(--primary); }
+        .nav-cta { background: var(--primary); color: #fff !important; box-shadow: 0 10px 26px rgba(59,130,246,0.28); }
+        .nav-cta:hover { background: #2563EB !important; color: #fff !important; transform: translateY(-1px); }
+        .menu-toggle { display: none; width: 42px; height: 42px; border: none; border-radius: 50%; background: var(--navy); color: #fff; font-size: 1.25rem; cursor: pointer; }
+
+        main.card-stage { position: relative; z-index: 1; padding: 0; }
+        section.stack-card {
+            position: relative;
+            min-height: 100svh;
+            padding: clamp(106px, 11vw, 136px) 0 clamp(54px, 8vw, 84px);
+            display: flex;
+            align-items: center;
+            scroll-snap-align: start;
+            isolation: isolate;
+            overflow: clip;
+            border-radius: 0 0 var(--radius) var(--radius);
+            box-shadow: var(--shadow);
+            transform-origin: 50% 0%;
+            will-change: transform, opacity;
+            transition: transform 0.45s cubic-bezier(.2,.75,.25,1), opacity 0.45s ease;
+        }
+        section.stack-card.is-before { transform: translateY(calc(var(--card-progress, 0) * -48px)) scale(calc(1 - (var(--card-progress, 0) * 0.05))); }
+        section.stack-card.is-after { transform: translateY(28px) scale(.985); }
+        section.stack-card.is-active { transform: translateY(0) scale(1); }
+        section.stack-card::before {
+            content: "";
+            position: absolute;
+            inset: 18px;
+            border: 1px solid rgba(255,255,255,0.22);
+            border-radius: calc(var(--radius) - 10px);
+            pointer-events: none;
+            z-index: -1;
+        }
+        section.stack-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(circle at 92% 14%, rgba(245,158,11,0.22), transparent 30vw), radial-gradient(circle at 8% 80%, rgba(59,130,246,0.22), transparent 32vw);
+            opacity: .55;
+            z-index: -2;
+        }
+        section.stack-card .container,
+        section.stack-card .container-wide { max-height: none; }
+
+        section.stack-card:nth-of-type(5n+1) { background: var(--card-1); color: rgba(255,255,255,0.88); }
+        section.stack-card:nth-of-type(5n+2) { background: var(--card-2); color: rgba(255,255,255,0.9); }
+        section.stack-card:nth-of-type(5n+3) { background: var(--card-3); color: var(--navy); }
+        section.stack-card:nth-of-type(5n+4) { background: var(--card-4); color: var(--navy); }
+        section.stack-card:nth-of-type(5n+5) { background: var(--card-5); color: rgba(255,255,255,0.88); }
+        section.stack-card:nth-of-type(5n+1) h1,
+        section.stack-card:nth-of-type(5n+1) h2,
+        section.stack-card:nth-of-type(5n+1) h3,
+        section.stack-card:nth-of-type(5n+1) h4,
+        section.stack-card:nth-of-type(5n+2) h2,
+        section.stack-card:nth-of-type(5n+2) h3,
+        section.stack-card:nth-of-type(5n+2) h4,
+        section.stack-card:nth-of-type(5n+5) h2,
+        section.stack-card:nth-of-type(5n+5) h3,
+        section.stack-card:nth-of-type(5n+5) h4 { color: #fff; }
+        section.stack-card:nth-of-type(5n+3) h2,
+        section.stack-card:nth-of-type(5n+3) h3,
+        section.stack-card:nth-of-type(5n+3) h4,
+        section.stack-card:nth-of-type(5n+4) h2,
+        section.stack-card:nth-of-type(5n+4) h3,
+        section.stack-card:nth-of-type(5n+4) h4 { color: var(--navy); }
+
+        .hero { background: var(--card-1) !important; }
+        .hero .container { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(280px, .85fr); gap: clamp(28px, 6vw, 72px); align-items: center; max-width: 1120px; }
+        .hero h1 { margin-bottom: 1.35rem; }
+        .hero .breadcrumb, .hero .meta-bar, .section-badge, .ui-label, .quick-answer-label {
+            display: inline-flex; align-items: center; gap: 8px;
+            color: var(--secondary);
+            font-family: var(--font-heading);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .hero .breadcrumb { grid-column: 1 / -1; margin-bottom: -10px; }
+        .meta-bar { border-top: 1px solid rgba(255,255,255,0.18); padding-top: 18px; margin: 22px 0 0; color: rgba(255,255,255,0.62); }
+        .hero-banner { grid-column: 2; grid-row: 2 / span 4; width: 100%; border-radius: 28px; box-shadow: 0 30px 80px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.22); background: rgba(255,255,255,0.08); }
+        .quick-answer { grid-column: 1 / -1; background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.18); border-left: 4px solid var(--secondary); border-radius: 24px; padding: 24px; backdrop-filter: blur(16px); }
+        .quick-answer p { margin-bottom: 0; }
+        .scroll-cue { position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%); display: inline-flex; flex-direction: column; align-items: center; gap: 8px; color: rgba(255,255,255,0.68); font: 800 11px/1 var(--font-heading); letter-spacing: 3px; text-transform: uppercase; }
+        .scroll-cue::after { content: "↓"; display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid rgba(255,255,255,.35); border-radius: 50%; color: var(--secondary); animation: cueBounce 1.2s ease-in-out infinite; }
+        @keyframes cueBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(7px); } }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-height: 50px; padding: 14px 24px;
+            border-radius: 999px;
+            font-family: var(--font-heading); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: 12px;
+            text-decoration: none; border: 1px solid transparent; cursor: pointer;
+        }
+        .btn-primary { background: var(--primary); color: white !important; box-shadow: 0 18px 34px rgba(59,130,246,0.34); }
+        .btn-primary:hover { background: #2563EB; color: white !important; transform: translateY(-2px); text-decoration: none; }
+        .btn-outline { border-color: currentColor; color: inherit; background: transparent; }
+        .btn-outline:hover { background: rgba(59,130,246,0.12); color: var(--secondary); text-decoration: none; }
+        .btn-saas { background: var(--primary); color: #fff !important; }
+        .saas-actions { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-top: 24px; }
+
+        .toc-card, .interactive-widget, .z-visual, .tabs-container, .comparison-table, .product-card, .test-card, .content-figure {
+            background: rgba(255,255,255,0.82);
+            border: 1px solid rgba(26,43,74,0.12);
+            border-radius: 28px;
+            box-shadow: 0 22px 52px rgba(26,43,74,0.11);
+            backdrop-filter: blur(12px);
+        }
+        .toc-card {
+            max-width: 1040px;
+            margin: 0 auto;
+            padding: clamp(32px, 6vw, 64px);
+            color: var(--navy) !important;
+            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(247,249,255,0.94));
+            border-color: rgba(255,255,255,0.86);
+            box-shadow: 0 32px 74px rgba(26,43,74,0.18);
+        }
+        .toc-card .toc-title {
+            color: #0B2F6B !important;
+            font-size: clamp(38px, 5.4vw, 60px);
+            line-height: 1;
+            margin-bottom: clamp(22px, 4vw, 34px);
+            text-shadow: none;
+        }
+        .toc-card ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: clamp(16px, 2.6vw, 28px) clamp(18px, 3.6vw, 34px);
+        }
+        .toc-card li { margin: 0; }
+        .toc-card a {
+            min-height: 82px;
+            display: flex;
+            align-items: center;
+            padding: 18px 24px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(219,234,254,0.96), rgba(239,246,255,0.88));
+            border: 1px solid rgba(59,130,246,0.12);
+            color: #0B2F6B !important;
+            font-weight: 800;
+            font-size: clamp(15px, 1.7vw, 18px);
+            line-height: 1.65;
+            letter-spacing: -0.02em;
+            text-decoration: none;
+            text-shadow: none;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.72), 0 10px 22px rgba(26,43,74,0.06);
+        }
+        .toc-card a:hover {
+            background: var(--primary);
+            color: #fff !important;
+            transform: translateY(-2px);
+            text-decoration: none;
+            box-shadow: 0 18px 34px rgba(59,130,246,0.28);
+        }
+
+        .section-badge { margin-bottom: 18px; color: var(--secondary); opacity: 0; transform: translateY(10px); transition: all .55s ease; }
+        .section-badge.visible { opacity: 1; transform: translateY(0); }
+        .card-counter {
+            position: absolute; top: 28px; right: 38px;
+            z-index: 4;
+            color: var(--secondary);
+            font: 800 12px/1 var(--font-heading);
+            letter-spacing: 0.18em;
+        }
+
+        .content-figure { margin: 28px 0; padding: 12px; overflow: hidden; }
+        .content-figure img, .img-fluid, .product-img {
+            display: block; width: 100%; height: auto; object-fit: contain; border-radius: 22px;
+        }
+        .z-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .82fr); gap: clamp(24px, 5vw, 56px); align-items: center; margin: 38px 0; }
+        .z-row:nth-child(even) { direction: rtl; }
+        .z-row:nth-child(even) > * { direction: ltr; }
+        .z-visual { padding: 22px; text-align: center; color: var(--navy); }
+        .z-visual .ui-label { color: var(--primary); }
+
+        .comparison-table { width: 100%; border-collapse: separate; border-spacing: 0; overflow: hidden; margin: 2rem 0; color: var(--navy); }
+        .comparison-table th, .comparison-table td { padding: 16px; text-align: left; border-bottom: 1px solid rgba(26,43,74,0.12); }
+        .comparison-table th { background: rgba(59,130,246,0.13); font-family: var(--font-heading); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; }
+        .comparison-table tr:last-child td { border-bottom: none; }
+        .comparison-table .verdict-row { background: rgba(245,158,11,0.14); font-weight: 800; }
+
+        .tabs-container { display: grid; grid-template-columns: 290px 1fr; overflow: hidden; margin: 2rem 0; color: var(--navy); }
+        .tab-buttons { background: rgba(26,43,74,0.04); border-right: 1px solid rgba(26,43,74,0.12); display: flex; flex-direction: column; }
+        .tab-btn { padding: 18px 20px; text-align: left; border: 0; border-bottom: 1px solid rgba(26,43,74,0.10); background: transparent; font-family: var(--font-heading); font-weight: 800; color: var(--muted); cursor: pointer; }
+        .tab-btn.active { background: #fff; color: var(--primary); box-shadow: inset 4px 0 0 var(--primary); }
+        .tab-content-area { padding: clamp(24px, 5vw, 42px); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn .35s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .interactive-widget { padding: 26px; color: var(--navy); }
+        .strength-input { width: 100%; padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(26,43,74,0.18); background: #fff; font: inherit; margin-bottom: 12px; }
+        .strength-bar-container { height: 8px; background: rgba(26,43,74,0.10); border-radius: 999px; overflow: hidden; margin-bottom: 12px; }
+        .strength-bar { height: 100%; width: 0%; border-radius: inherit; transition: width .3s ease, background .3s ease; }
+        .strength-msg { font-size: .92rem; font-weight: 800; }
+
+        .saas-band { text-align: center; }
+        .saas-band .saas-sub { max-width: 680px; margin: 0 auto 28px; color: inherit; opacity: .78; }
+        .saas-mockup { max-width: 820px; margin: 0 auto 28px; border-radius: 28px; box-shadow: 0 30px 80px rgba(0,0,0,.32); overflow: hidden; border: 1px solid rgba(255,255,255,.18); }
+
+        .accordion-item { border-bottom: 1px solid rgba(26,43,74,.15); }
+        .accordion-btn { width: 100%; padding: 24px 0; display: flex; justify-content: space-between; align-items: center; text-align: left; border: 0; background: none; font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: inherit; cursor: pointer; }
+        .accordion-btn::after { content: '+'; color: var(--secondary); font-size: 1.6rem; }
+        .accordion-btn[aria-expanded="true"]::after { content: '−'; }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height .32s ease; }
+        .accordion-content-inner { padding-bottom: 24px; }
+
+        .product-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 2rem; }
+        .product-card { padding: 18px; display: flex; flex-direction: column; color: var(--navy); }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 30px 70px rgba(26,43,74,0.18); }
+        .product-title { margin-top: 12px; color: var(--navy) !important; }
+        .product-desc { font-size: .96rem; flex-grow: 1; }
+        .product-link { margin-top: auto; color: var(--primary); font-family: var(--font-heading); letter-spacing: .08em; text-transform: uppercase; font-size: 12px; text-decoration: none; }
+
+        .testimonial-stack { display: flex; flex-direction: column; gap: 22px; margin: 2.5rem 0 0; }
+        .test-card { padding: 28px; max-width: 620px; color: var(--navy); margin-left: calc(var(--offset, 0) * 40px); }
+        .test-quote { font-size: 1.05rem; font-style: italic; }
+        .test-author { color: var(--primary); font-family: var(--font-heading); font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+        .faq-list { counter-reset: faq-counter; }
+        .faq-item { position: relative; padding-left: 48px; margin-bottom: 28px; }
+        .faq-item::before { counter-increment: faq-counter; content: "Q" counter(faq-counter) "."; position: absolute; left: 0; top: 0; color: var(--secondary); font: 800 1.3rem/1 var(--font-heading); }
+        .faq-item h3 { margin-top: 0; }
+
+        .progress-dots { position: fixed; z-index: 999; right: 18px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 11px; pointer-events: auto; }
+        .progress-dots button { width: 11px; height: 11px; border: 1px solid var(--dot-color, var(--primary)); background: transparent; border-radius: 999px; padding: 0; cursor: pointer; opacity: .78; }
+        .progress-dots button.active { background: var(--dot-color, var(--primary)); box-shadow: 0 0 0 6px color-mix(in srgb, var(--dot-color, var(--primary)) 18%, transparent); }
+        .card-spine { position: fixed; right: 0; top: 0; bottom: 0; width: 8px; z-index: 998; display: flex; flex-direction: column; pointer-events: none; background: rgba(255,255,255,.2); }
+        .spine-segment { flex: 1; position: relative; background: var(--spine-color); opacity: .58; transition: opacity .2s, filter .2s; }
+        .spine-segment.active { opacity: 1; filter: saturate(1.6) brightness(1.08); }
+        .spine-segment.active::before { content: ""; position: absolute; inset: 0 -5px 0 0; background: var(--secondary); box-shadow: 0 0 20px rgba(245,158,11,.75); }
+
+        .reveal-child { opacity: 0; transform: translateY(18px); transition: opacity .55s ease, transform .55s ease; transition-delay: calc(var(--reveal-index, 0) * 100ms); }
+        section.is-active .reveal-child, section.has-entered .reveal-child { opacity: 1; transform: translateY(0); }
+
+        footer { position: relative; z-index: 1; background: var(--navy); color: rgba(255,255,255,0.72); padding: 72px 0 36px; }
+        footer a { color: #fff; }
+        footer h4 { color: #fff !important; }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 46px; margin-bottom: 46px; }
+        .disclosure { padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.14); font-style: italic; }
+
+        @media (max-width: 980px) {
+            .hero .container { grid-template-columns: 1fr; }
+            .hero-banner { grid-column: auto; grid-row: auto; }
+            .z-row, .z-row:nth-child(even) { grid-template-columns: 1fr; direction: ltr; }
+            .product-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 800px) {
+            html { scroll-snap-type: y proximity; }
+            body { font-size: 16px; }
+            header { top: 10px; }
+            .nav-container { width: calc(100% - 18px); border-radius: 24px; }
+            .brand-logo { height: 38px; max-width: 220px; }
+            .menu-toggle { display: block; }
+            .nav-links { display: none; position: absolute; top: 68px; left: 12px; right: 12px; flex-direction: column; align-items: stretch; padding: 12px; border-radius: 22px; background: rgba(255,255,255,.96); box-shadow: 0 22px 52px rgba(26,43,74,.18); }
+            .nav-links.active { display: flex; }
+            .nav-links a { justify-content: flex-start; }
+            section.stack-card { min-height: 100svh; align-items: flex-start; padding: 108px 0 58px; border-radius: 0 0 24px 24px; overflow: visible; }
+            section.stack-card::before { inset: 9px; border-radius: 18px; }
+            .card-counter { top: 84px; right: 22px; font-size: 11px; }
+            .progress-dots { right: 8px; gap: 8px; }
+            .progress-dots button { width: 6px; height: 6px; }
+            .card-spine { display: none; }
+            .toc-card { padding: 28px 22px; }
+            .toc-card .toc-title { font-size: clamp(34px, 11vw, 44px); }
+            .toc-card ul { grid-template-columns: 1fr; gap: 14px; }
+            .toc-card a { min-height: 68px; padding: 16px 18px; font-size: 15px; }
+            .tabs-container { grid-template-columns: 1fr; }
+            .tab-buttons { border-right: 0; border-bottom: 1px solid rgba(26,43,74,.12); }
+            .comparison-table { display: block; overflow-x: auto; white-space: nowrap; }
+            .test-card { margin-left: 0; }
+            .footer-grid { grid-template-columns: 1fr; }
+        }
+</style>
+</head>
+<body>
+<header>
+<div class="nav-container">
+<a class="nav-logo" href="#">
+<img alt="Excel Protect Hub security shield logo" class="brand-logo" src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20310%2054%22%20width%3D%22310%22%20height%3D%2254%22%20role%3D%22img%22%20aria-label%3D%22Excel%20Protect%20Hub%20security%20logo%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%233B82F6%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23F59E0B%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%22310%22%20height%3D%2254%22%20rx%3D%2227%22%20fill%3D%22%231A2B4A%22/%3E%0A%20%20%3Cg%20transform%3D%22translate%2816%2010%29%22%3E%0A%20%20%20%20%3Cpath%20d%3D%22M17%200l17%207v11c0%2012-7.6%2019.2-17%2024C7.6%2037.2%200%2030%200%2018V7z%22%20fill%3D%22url%28%23g%29%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M11.3%2018.3l4.2%204.2%208.6-10%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%223.4%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%20%20%3C/g%3E%0A%20%20%3Ctext%20x%3D%2262%22%20y%3D%2225%22%20font-family%3D%22Plus%20Jakarta%20Sans%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2216%22%20font-weight%3D%22800%22%20fill%3D%22%23fff%22%20letter-spacing%3D%22.4%22%3EExcel%20Protect%3C/text%3E%0A%20%20%3Ctext%20x%3D%2262%22%20y%3D%2240%22%20font-family%3D%22Plus%20Jakarta%20Sans%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2212%22%20font-weight%3D%22700%22%20fill%3D%22%2393C5FD%22%20letter-spacing%3D%222.5%22%3EHUB%3C/text%3E%0A%3C/svg%3E"/>
+</a>
+<button aria-label="Toggle navigation" class="menu-toggle">☰</button>
+<nav class="nav-links">
+<a href="#overview">Guide</a>
+<a href="#methods">Methods</a>
+<a href="#comparison">Comparison</a>
+<a href="#faq">FAQ</a>
+<a class="nav-cta" href="#recommendation">See Our Top Pick →</a>
+</nav>
+</div>
+</header><div aria-hidden="true" class="card-spine"></div><div aria-label="Section progress" class="progress-dots"></div>
+<main class="card-stage">
+<!-- S1: HERO -->
+<section class="hero stack-card" id="top"><div aria-hidden="true" class="card-counter"></div>
+<div class="container">
+<div class="breadcrumb">Document Security › Excel › Protection Guide</div>
+<h1>How to Password Protect an Excel File — Opening and Editing</h1>
+<p>Whether you need to lock down financial reports, hide specific cells, or secure a workbook for email distribution, applying the right password protection prevents unauthorized access. This guide breaks down the difference between open passwords, permissions, and professional file encryption.</p>
+<div class="meta-bar">
+                    Editorial Team · Updated May 2026 · 8 min read
+                </div>
+<img alt="Military grade file shield protecting a password protected Excel spreadsheet" class="hero-banner img-fluid" decoding="async" loading="lazy" src="https://i.ibb.co/C5sfWRJm/Military-Grade-File-Shield.jpg"/>
+<div class="quick-answer">
+<span class="quick-answer-label">Quick Answer</span>
+<p><strong>To password protect an Excel file from opening:</strong> Open your workbook in Excel. Go to <strong>File &gt; Info &gt; Protect Workbook &gt; Encrypt with Password</strong>. Type a strong password, click OK, confirm it, and save the file. Anyone attempting to open this file will now be required to enter the password before viewing any data.</p>
+</div>
+</div>
+<div aria-hidden="true" class="scroll-cue">Scroll to explore</div></section>
+<!-- S2: TABLE OF CONTENTS -->
+<section class="bg-alt stack-card"><div aria-hidden="true" class="card-counter"></div>
+<div class="container-wide">
+<div class="toc-card">
+<h2 class="toc-title">Inside This Guide</h2>
+<ul>
+<li><a href="#overview">1. Raw GSC Queries Answered</a></li>
+<li><a href="#methods">2. Native Excel Protection Methods</a></li>
+<li><a href="#comparison">3. Protection Methods Comparison</a></li>
+<li><a href="#recommendation">4. Our Editorial Recommendation</a></li>
+<li><a href="#tutorial">5. Step-by-Step Tutorial</a></li>
+<li><a href="#advanced">6. Advanced Security &amp; AES-256</a></li>
+<li><a href="#troubleshooting">7. Owner-Safe Troubleshooting</a></li>
+<li><a href="#related">8. Related Security Tools</a></li>
+<li><a href="#faq">9. Frequently Asked Questions</a></li>
+</ul>
+</div>
+</div>
+</section>
+<!-- S3: OVERVIEW & INTENT -->
+<section class="stack-card" id="overview"><div aria-hidden="true" class="card-counter"></div>
+<div class="container">
+<span class="section-badge">Topic Overview</span>
+<h2>What Happens When You Password Protect an Excel File</h2>
+<p>Adding a password to your Excel file does two things depending on how you configure it. An <strong>open password</strong> uses Excel's built-in <a href="https://psbios.com/file-encryption-explained/" rel="noopener noreferrer" target="_blank">AES-256 encryption</a> to scramble the file's contents, making it unreadable without the exact key. A <strong>permissions password</strong> (or edit password) allows anyone to open the file, but restricts changes, preventing users from altering formulas or editing specific sheets.</p>
+<h3>How to Password Protect Excel File from Opening</h3>
+<p>Many users specifically search for how to completely block access to a file. The native "Encrypt with Password" feature is the Microsoft standard for this. When applied, the file cannot be previewed in <a href="https://proprivacy.com/guides/encrypt-files-windows" rel="noopener noreferrer" target="_blank">Windows Explorer</a>, read by macro scripts, or imported into Google Sheets without the password.</p>
+<!-- INTERACTIVE: Password Strength Checker -->
+<div class="interactive-widget">
+<span class="ui-label">Tool: Document Password Strength Checker</span>
+<p>Before applying a password to your financial spreadsheets, test how resilient it is against automated cracking attempts.</p><figure class="content-figure"><img alt="Sensitive personal data protected by password security and Excel file encryption" class="img-fluid" decoding="async" loading="lazy" src="https://i.ibb.co/Zpt5NfpT/sensitive-personal-data.jpg"/></figure>
+<input class="strength-input" id="pw-input" placeholder="Type a sample password (do not use your real one)..." type="text"/>
+<div class="strength-bar-container">
+<div class="strength-bar" id="pw-bar"></div>
+</div>
+<div class="strength-msg" id="pw-msg">Strength: None</div>
+</div>
+</div>
+</section>
+<!-- S4: METHODS GUIDE (Z-Pattern) -->
+<section class="bg-alt stack-card" id="methods"><div aria-hidden="true" class="card-counter"></div>
+<div class="container-wide">
+<span class="section-badge">Built-In Solutions</span>
+<h2>How to Password Protect an Excel File — Complete Guide</h2>
+<div class="z-row">
+<div class="z-content">
+<h3>Method 1: Encrypt with Password (Full File Lock)</h3>
+<p>This is the native method requiring Microsoft Excel. It locks the entire file.</p>
+<ol>
+<li>Click <strong>File</strong> in the top ribbon.</li>
+<li>Navigate to <strong>Info</strong>.</li>
+<li>Click the <strong>Protect Workbook</strong> dropdown.</li>
+<li>Select <strong>Encrypt with Password</strong>.</li>
+<li>Enter your password and verify it. Save the document.</li>
+</ol>
+<p><strong>Limitations:</strong> This must be done manually for every single file. It does not prevent someone from deleting the file entirely from your hard drive or moving it to an external USB stick.</p>
+</div>
+<div class="z-visual">
+<img alt="Password lock illustration for encrypting an Excel file before opening" class="img-fluid" decoding="async" loading="lazy" src="https://i.ibb.co/LzzGGSL3/Password-Lock.jpg"/>
+<span class="ui-label">Security Level</span>
+<h4 style="font-size: 2.5rem; margin-bottom: 0;">Moderate</h4>
+<p>Excel's AES-256 is mathematically secure, but local files remain vulnerable to deletion and USB transfer.</p>
+</div>
+</div>
+<div class="z-row">
+<div class="z-content">
+<h3>Method 2: Password Protect an Excel Workbook vs Sheet</h3>
+<p>If you want users to view the data but not break your formulas, you need structural protection.</p>
+<ul>
+<li><strong>Protect Sheet:</strong> Prevents users from editing specific cells or formatting. (Review &gt; Protect Sheet).</li>
+<li><strong>Protect Workbook:</strong> Prevents users from adding, deleting, or hiding entire tabs/sheets. (Review &gt; Protect Workbook).</li>
+</ul>
+<p><strong>Common Mistake:</strong> Relying on Sheet Protection for security. Sheet passwords are <em>not</em> encrypted and can be easily bypassed by changing the file extension to .zip and editing the internal XML. Never use Sheet Protection for sensitive data.</p>
+</div>
+<div class="z-visual">
+<img alt="Protected virtual paper sheet representing Excel workbook and worksheet permissions" class="img-fluid" decoding="async" loading="lazy" src="https://i.ibb.co/ZRsTRpZQ/sheet-of-virtual-paper.jpg"/>
+<span class="ui-label">Best Used For</span>
+<p>Office collaboration, preventing accidental formula overwrites, and read-only distribution.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- S8: COMPARISON TABLE -->
+<section class="stack-card" id="comparison"><div aria-hidden="true" class="card-counter"></div>
+<div class="container">
+<span class="section-badge">Method Analysis</span>
+<h2>Head-to-Head Comparison</h2><figure class="content-figure"><img alt="Comparison of disk encryption and dedicated vault software for document security" class="img-fluid" decoding="async" loading="lazy" src="https://i.ibb.co/TB97SChY/best-disk-encryption-software.jpg"/></figure>
+<table class="comparison-table">
+<thead>
+<tr>
+<th>Protection Method</th>
+<th>Prevents Opening?</th>
+<th>Prevents Editing?</th>
+<th>Batch Processing?</th>
+<th>Stops File Deletion?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Excel Encrypt with Password</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Excel Protect Sheet</td>
+<td>No</td>
+<td>Yes (Weak)</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>ZIP / 7-Zip Archive</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes (Manual)</td>
+<td>No</td>
+</tr>
+<tr class="verdict-row">
+<td>Dedicated Vault Software</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes (Automated)</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- S7: FEATURES (Tab-Based) -->
+<section class="bg-alt stack-card" id="features"><div aria-hidden="true" class="card-counter"></div>
+<div class="container">
+<span class="section-badge">Core Requirements</span>
+<h2>What True Document Security Requires</h2>
+<p>When native methods fall short, third-party software steps in. Here is what <a href="https://nira.com/best-encryption-software/" rel="noopener noreferrer" target="_blank">professional document security software</a> adds to standard Excel protection.</p>
+<div class="tabs-container">
+<div class="tab-buttons">
+<button class="tab-btn active" data-target="tab1">Cross-Device Sync</button>
+<button class="tab-btn" data-target="tab2">Batch Protection</button>
+<button class="tab-btn" data-target="tab3">Extension Targeting</button>
+<button class="tab-btn" data-target="tab4">Deletion Prevention</button>
+<button class="tab-btn" data-target="tab5">Cloud Lockers</button>
+</div>
+<div class="tab-content-area">
+<div class="tab-panel active" id="tab1">
+<h3>Cross-Device Synchronization</h3>
+<p>Modern professionals do not just view spreadsheets on desktop computers. Dedicated protection tools offer companion apps for iOS and Android, allowing you to seamlessly sync and unlock your financial documents across multiple devices while keeping the AES encryption intact throughout transit.</p><figure class="content-figure"><img alt="Data protection vault securing professional files and financial spreadsheets" class="img-fluid" decoding="async" loading="lazy" src="https://i.ibb.co/bMzYGK6K/Data-Protection-Vault.jpg"/></figure>
+</div>
+<div class="tab-panel" id="tab2">
+<h3>Batch Document Protection</h3>
+<p>Instead of opening fifty separate Excel files to assign passwords one by one, security software allows you to drop an entire folder of spreadsheets into a vault. One master password secures them all simultaneously, saving immense administrative time.</p>
+</div>
+<div class="tab-panel" id="tab3">
+<h3>Extension Targeting &amp; Masking</h3>
+<p>Advanced security suites allow you to establish rule-based protection based on file types. For example, you can command the software to instantly secure every file ending in <code>.xlsx</code> or <code>.csv</code> automatically, ensuring no spreadsheet is ever left unguarded by mistake.</p>
+</div>
+<div class="tab-panel" id="tab4">
+<h3>Deletion Prevention</h3>
+<p>A native Excel password cannot stop a malicious user from simply dragging your file to the Recycle Bin. Specialized vault software locks the file at the kernel level, completely halting any attempts to delete, copy, or move the document without authenticating the master key first.</p>
+</div>
+<div class="tab-panel" id="tab5">
+<h3>Cloud Storage Compatibility</h3>
+<p>When you password protect shared files natively, integrating them into Dropbox or Google Drive can occasionally break permissions. Dedicated software constructs customized lockers that maintain strict local encryption while syncing flawlessly with major <a href="https://www.windowscentral.com/how-encrypt-data-storing-it-cloud-and-why-you-should" rel="noopener noreferrer" target="_blank">cloud storage</a> providers.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- S5: PREMIUM SAAS MOMENT (Recommendation) -->
+<section class="saas-band stack-card" id="recommendation"><div aria-hidden="true" class="card-counter"></div>
+<div class="container-wide">
+<h2>The Tool We Recommend for Most Users</h2>
+<p class="saas-sub">While Excel’s built-in password is fine for a single file, it cannot stop files from being deleted or copied to a USB drive. For complete protection of financial and personal spreadsheets across Windows, Mac, iOS, and Android platforms, we recommend Folder Lock.</p>
+<div class="saas-mockup">
+<img alt="Folder Lock 10 main lockers screen securing spreadsheet documents in an encrypted vault" class="img-fluid" decoding="async" loading="lazy" src="https://i.ibb.co/RGXFx5r3/folder-lock-10-screenshot-main-lockers.png"/>
+</div>
+<div class="saas-actions">
+<a class="btn btn-saas" href="https://www.newsoftwares.net/download/folderlock10-en/folder-lock-en.exe" rel="noopener noreferrer" target="_blank">Try Folder Lock Free →</a>
+<a class="btn btn-outline" href="https://store.newsoftwares.net/?add=fl10" rel="noopener noreferrer" style="border-color: white; color: white;" target="_blank">Get the Full Version →</a>
+</div>
+<p style="margin-top: 1rem; font-size: 0.85rem; color: #a4c2c2;">AES-256 Encryption · Windows &amp; Mac · Mobile Companion Apps</p>
+</div>
+</section>
+<!-- S9: TUTORIAL -->
+<section class="stack-card" id="tutorial"><div aria-hidden="true" class="card-counter"></div>
+<div class="container">
+<span class="section-badge">Step by Step</span>
+<h2>How to Secure Spreadsheets using Folder Lock</h2>
+<p>If you choose to use our recommended tool, the process shifts from file-level passwords to vault-level encryption.</p>
+<img alt="Folder Lock desktop locker screen showing protected Excel files in a secure vault" class="img-fluid" decoding="async" loading="lazy" src="https://i.ibb.co/210hR8f6/folder-lock-10-desktop-locker-screen.png"/>
+<ol style="list-style-position: inside; padding-left: 0;">
+<li><strong>Create a Locker:</strong> Open the software and create a new encrypted Locker. Think of this as a digital safe.</li>
+<li><strong>Set a Master Password:</strong> Choose a strong password. This single key will protect every Excel file inside.</li>
+<li><strong>Add Your Files:</strong> Drag and drop your unprotected Excel files (.xlsx, .csv) into the Locker interface.</li>
+<li><strong>Close the Locker:</strong> Once closed, the files disappear from your normal folders and are fully encrypted.</li>
+</ol>
+<p><em>Honest limitation:</em> If you need to email the file to a client who does not have this software, you will need to pull the file out of the locker and use Excel's native "Encrypt with Password" method before attaching it.</p>
+</div>
+</section>
+<!-- S10: DEEP DIVE ACCORDION -->
+<section class="bg-alt stack-card" id="advanced"><div aria-hidden="true" class="card-counter"></div>
+<div class="container">
+<span class="section-badge">Technical Details</span>
+<h2>Advanced Security &amp; Encryption Standards</h2>
+<div class="accordion-item">
+<button aria-expanded="false" class="accordion-btn">How Strong is Excel's AES-256 Encryption?</button>
+<div class="accordion-content">
+<div class="accordion-content-inner">
+<p>Modern Excel files (2013 and newer, saving as .xlsx) utilize AES-256 bit encryption. This is military-grade standard. If you use a strong, unique password, it is computationally impossible to brute-force the encryption within a human lifetime. However, older .xls files (Excel 2003 and earlier) used weak RC4 algorithms that can be cracked in seconds.</p>
+</div>
+</div>
+</div>
+<div class="accordion-item">
+<button aria-expanded="false" class="accordion-btn">Can Google Sheets open a password-protected file?</button>
+<div class="accordion-content">
+<div class="accordion-content-inner">
+<p>No. Users frequently encounter the error: <em>"couldn't be opened for import if the file is password protected try removing the password"</em> when uploading to Google Drive. Google Sheets cannot decrypt Office AES encryption. You must remove the password in desktop Excel before importing to Google Sheets.</p><figure class="content-figure"><img alt="Encryption explainer graphic for AES protected spreadsheet files" class="img-fluid" decoding="async" loading="lazy" src="https://i.ibb.co/gZ8Tcbqc/what-is-encryption-complete-explainer-for-beginners.jpg"/></figure>
+</div>
+</div>
+</div>
+<div class="accordion-item">
+<button aria-expanded="false" class="accordion-btn">Permissions Password vs Open Password</button>
+<div class="accordion-content">
+<div class="accordion-content-inner">
+<p>An Open Password encrypts the file. A Permissions password does not encrypt the data; it simply flags the file as "read-only" or "do not edit" in the application interface. Third-party spreadsheet viewers can easily ignore permissions flags. For real security, always use an Open Password.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- S16: TROUBLESHOOTING -->
+<section class="stack-card" id="troubleshooting"><div aria-hidden="true" class="card-counter"></div>
+<div class="container">
+<span class="section-badge">Owner Recovery</span>
+<h2>What to Do If You Forget a Document Password</h2>
+<p>If you are the legitimate owner of an Excel file and have forgotten your password, your recovery options are strictly limited by design. AES-256 encryption is specifically built to have no "backdoors".</p>
+<ul>
+<li><strong>For Sheet Passwords:</strong> If you only protected a sheet (not the file opening), you can often copy the contents of the locked sheet into a brand new, unprotected workbook.</li>
+<li><strong>For Open Passwords:</strong> There is no native recovery tool. You must attempt to remember the password. Check password managers, browser keychains, or old notes.</li>
+<li><strong>For Folder Lock Passwords:</strong> If using software, verify your account login, check your initial setup email for a master key backup, or contact vendor support with proof of license purchase.</li>
+</ul>
+<p><em>Note: We do not endorse or link to third-party "cracking" software, as these tools frequently contain malware and compromise your system.</em></p>
+</div>
+</section>
+<!-- S13: PRICING (Integrated Prose V7) -->
+<section class="bg-alt stack-card" id="pricing"><div aria-hidden="true" class="card-counter"></div>
+<div class="container" style="text-align: center;">
+<h2>Folder Lock Pricing: What You Get</h2><figure class="content-figure"><img alt="Folder Lock 10 Pro boxshot for secure Excel and document vault protection" class="img-fluid" decoding="async" loading="lazy" src="https://i.ibb.co/ksHyHDQV/folder-lock-10-pro-boxshot.png"/></figure>
+<p style="max-width: 680px; margin: 0 auto 2rem;">If you decide to upgrade from Excel's built-in tools to dedicated software, the cost structure is straightforward. The free trial lets you build a basic 1 GB locker to test the mechanisms. Upgrading to a one-time lifetime license for $39.95 permanently removes these capacity restrictions, granting you unlimited locker sizes and the ability to seamlessly synchronize your vaults across up to five of your personal devices.</p>
+<a class="btn btn-outline" href="https://www.newsoftwares.net/download/folderlock10-en/folder-lock-en.exe" rel="noopener noreferrer" style="margin-right: 16px;" target="_blank">Download Free Trial →</a>
+<a class="btn btn-primary" href="https://store.newsoftwares.net/?add=fl10" rel="noopener noreferrer" target="_blank">View Full Version Pricing →</a>
+</div>
+</section>
+<!-- S17: TESTIMONIALS (V3 Stacked) -->
+<section class="stack-card" id="testimonials"><div aria-hidden="true" class="card-counter"></div>
+<div class="container">
+<span class="section-badge">User Context</span>
+<h2>Who Uses Dedicated Document Protection?</h2>
+<div class="testimonial-stack">
+<div class="test-card" style="--offset: 0;">
+<p class="test-quote">"I manage payroll for a small agency. Excel's passwords were fine, until someone accidentally deleted the master spreadsheet. Moving to a dedicated locker software stopped deletion entirely."</p>
+<span class="test-author">— Financial Controller</span>
+</div>
+<div class="test-card" style="--offset: 1;">
+<p class="test-quote">"I used to password protect 20 different client files individually every Friday. Being able to drop them all into one secure vault has saved me hours."</p>
+<span class="test-author">— Freelance Accountant</span>
+</div>
+</div>
+</div>
+</section>
+<!-- S19: RELATED PRODUCTS -->
+<section class="bg-alt stack-card" id="related"><div aria-hidden="true" class="card-counter"></div>
+<div class="container">
+<span class="section-badge">More Options</span>
+<h2>Other Security Tools You Might Find Useful</h2>
+<p>Depending on your exact document security needs, the developers of Folder Lock offer a few specialized utilities that tackle privacy from different angles.</p>
+<div class="product-grid">
+<div class="product-card">
+<img alt="Folder Protect main window showing access controls for protected folders and documents" class="product-img img-fluid" decoding="async" loading="lazy" src="https://i.ibb.co/qLN2dbCQ/folder-protect-main-window-screenshot.png"/>
+<h3 class="product-title">Folder Protect</h3>
+<p class="product-desc">Ideal for shared computers. Instead of encrypting your spreadsheets in a hidden vault, this tool allows you to assign custom access rules. You can leave a document visible on the desktop, but completely block anyone from altering, accessing, or deleting it without a password.</p>
+<a class="product-link" href="#">Learn More →</a>
+</div>
+<div class="product-card">
+<img alt="Folder Lock software boxshot for lightweight folder and file privacy protection" class="product-img img-fluid" decoding="async" loading="lazy" src="https://i.ibb.co/V0Sw4tk7/folder-lock-10-boxshot.png"/>
+<h3 class="product-title">Folder Lock Lite</h3>
+<p class="product-desc">A trimmed-down iteration designed for rapid privacy. If you do not require military-grade AES encryption but simply want to swiftly conceal folders containing sensitive documents from casual observers, this lightweight utility locks items instantly.</p>
+<a class="product-link" href="#">Learn More →</a>
+</div>
+<div class="product-card">
+<img alt="Mobile file and password vault app screen for protecting credentials and private documents" class="product-img img-fluid" decoding="async" loading="lazy" src="https://i.ibb.co/HDTt1D1R/ns-vault-ios-1.png"/>
+<h3 class="product-title">File &amp; Password Vault</h3>
+<p class="product-desc">Built exclusively for mobile devices. If you frequently handle financial spreadsheets or private credentials on your smartphone, this app operates as a secure manager. It even features a decoy mode to misdirect unauthorized individuals who demand access.</p>
+<a class="product-link" href="#">Learn More →</a>
+</div>
+</div>
+<p style="margin-top: 2rem; font-size: 0.9rem; color: var(--color-meta-text);">These tools are developed by <a href="https://www.newsoftwares.net" rel="noopener noreferrer" target="_blank">NewSoftwares.net</a>, the same team behind Folder Lock.</p>
+</div>
+</section>
+<!-- S20: FAQ -->
+<section class="stack-card" id="faq"><div aria-hidden="true" class="card-counter"></div>
+<div class="container">
+<span class="section-badge">Common Questions</span>
+<h2>Frequently Asked Questions</h2>
+<div class="faq-list">
+<div class="faq-item">
+<h3>How to password protect an Excel file from being opened?</h3>
+<p>Open the file, click File &gt; Info &gt; Protect Workbook &gt; Encrypt with Password. Enter your password, confirm it, and save the file. The next time it is opened, Excel will prompt for the password.</p>
+</div>
+<div class="faq-item">
+<h3>How to remove password protection from Excel?</h3>
+<p>You must know the current password to remove it. Open the file and enter the password. Go to File &gt; Info &gt; Protect Workbook &gt; Encrypt with Password. Delete the dots in the password field so it is completely blank, click OK, and save the file.</p>
+</div>
+<div class="faq-item">
+<h3>Can Google open a password-protected Office file?</h3>
+<p>No. Google Drive and Google Sheets cannot decrypt AES-protected Excel files. You must remove the password using Microsoft Excel before you can import or edit the file in Google Workspace.</p>
+</div>
+<div class="faq-item">
+<h3>Can I batch password protect multiple documents?</h3>
+<p>Native Excel does not support batch protection. To protect multiple files at once, you must place them in an <a href="https://techpp.com/2013/05/16/password-protect-encrypt-files-mac-windows/" rel="noopener noreferrer" target="_blank">encrypted ZIP file</a> (using tools like 7-Zip) or use dedicated vault software like Folder Lock.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- S22: FINAL VERDICT -->
+<section class="bg-alt stack-card" id="verdict"><div aria-hidden="true" class="card-counter"></div>
+<div class="container" style="text-align: center;">
+<h2>Our Verdict</h2>
+<p style="max-width: 600px; margin: 0 auto 2rem;">For sharing a single spreadsheet via email, Excel's native "Encrypt with Password" feature is the right choice. It is free, built-in, and uses strong AES-256 encryption. However, for local file security—where you need to prevent files from being seen, copied, or deleted from your own PC or <a href="https://windowsreport.com/encrypt-usb-flash-drive-windows/" rel="noopener noreferrer" target="_blank">USB drive</a>—native Office features are insufficient. In those cases, we recommend using dedicated vault software.</p>
+<a class="btn btn-primary" href="https://www.newsoftwares.net/download/folderlock10-en/folder-lock-en.exe" rel="noopener noreferrer" style="margin-right: 16px;" target="_blank">Try Folder Lock Free →</a>
+<a class="btn btn-outline" href="https://store.newsoftwares.net/?add=fl10" rel="noopener noreferrer" target="_blank">Get the Full Version →</a>
+</div>
+</section>
+</main>
+<footer>
+<div class="container">
+<div class="footer-grid">
+<div>
+<img alt="Excel Protect Hub security shield logo" class="brand-logo" src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20310%2054%22%20width%3D%22310%22%20height%3D%2254%22%20role%3D%22img%22%20aria-label%3D%22Excel%20Protect%20Hub%20security%20logo%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%233B82F6%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23F59E0B%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%22310%22%20height%3D%2254%22%20rx%3D%2227%22%20fill%3D%22%231A2B4A%22/%3E%0A%20%20%3Cg%20transform%3D%22translate%2816%2010%29%22%3E%0A%20%20%20%20%3Cpath%20d%3D%22M17%200l17%207v11c0%2012-7.6%2019.2-17%2024C7.6%2037.2%200%2030%200%2018V7z%22%20fill%3D%22url%28%23g%29%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M11.3%2018.3l4.2%204.2%208.6-10%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%223.4%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%20%20%3C/g%3E%0A%20%20%3Ctext%20x%3D%2262%22%20y%3D%2225%22%20font-family%3D%22Plus%20Jakarta%20Sans%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2216%22%20font-weight%3D%22800%22%20fill%3D%22%23fff%22%20letter-spacing%3D%22.4%22%3EExcel%20Protect%3C/text%3E%0A%20%20%3Ctext%20x%3D%2262%22%20y%3D%2240%22%20font-family%3D%22Plus%20Jakarta%20Sans%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2212%22%20font-weight%3D%22700%22%20fill%3D%22%2393C5FD%22%20letter-spacing%3D%222.5%22%3EHUB%3C/text%3E%0A%3C/svg%3E" style="margin-bottom: 1rem;"/>
+<p>Independent editorial guidance for securing documents, files, and spreadsheets.</p>
+</div>
+<div>
+<h4 style="color: white; margin-bottom: 1rem;">Guides</h4>
+<ul style="list-style: none; padding: 0;">
+<li><a href="#overview">Protection Overview</a></li>
+<li><a href="#methods">Native Methods</a></li>
+<li><a href="#tutorial">Software Tutorial</a></li>
+<li><a href="#faq">FAQ</a></li>
+</ul>
+</div>
+<div>
+<h4 style="color: white; margin-bottom: 1rem;">Legal</h4>
+<ul style="list-style: none; padding: 0;">
+<li><a href="#">Privacy Policy</a></li>
+<li><a href="#">Terms of Use</a></li>
+</ul>
+</div>
+</div>
+<div class="disclosure">
+<p>This site operates as an independent editorial resource. Some links may earn a referral commission at no cost to you. Product recommendations reflect editorial judgment and independent assessment.</p>
+<p style="margin-top: 1rem;">Folder Lock is developed by <a href="https://www.newsoftwares.net" rel="noopener noreferrer" target="_blank">NewSoftwares.net</a>.</p>
+<p style="margin-top: 1rem;">© 2026 ExcelProtectHub</p>
+</div>
+</div>
+</footer>
+<!-- Scripts -->
+<script defer="">
+        document.addEventListener('DOMContentLoaded', () => {
+            const header = document.querySelector('header');
+            const navLinks = document.querySelector('.nav-links');
+            const menuToggle = document.querySelector('.menu-toggle');
+            const cards = Array.from(document.querySelectorAll('main > section.stack-card'));
+            const dotsWrap = document.querySelector('.progress-dots');
+            const spine = document.querySelector('.card-spine');
+            const cardColors = ['#1A2B4A', '#2E5BA8', '#FFFFFF', '#F7F9FF', '#1A2B4A'];
+            const dotColors = ['#3B82F6', '#F59E0B', '#3B82F6', '#2E5BA8', '#F59E0B'];
+            let activeIndex = 0;
+
+            const pad = number => String(number).padStart(2, '0');
+            cards.forEach((card, index) => {
+                const counter = card.querySelector('.card-counter');
+                if (counter) counter.textContent = `${pad(index + 1)}/${pad(cards.length)}`;
+
+                const revealItems = card.querySelectorAll('h1, h2, h3, p, li, .btn, .quick-answer, .content-figure, .hero-banner, .z-row, .tabs-container, .comparison-table, .product-card, .test-card, .accordion-item');
+                revealItems.forEach((item, revealIndex) => {
+                    item.classList.add('reveal-child');
+                    item.style.setProperty('--reveal-index', Math.min(revealIndex, 8));
+                });
+
+                if (dotsWrap) {
+                    const dot = document.createElement('button');
+                    dot.type = 'button';
+                    dot.setAttribute('aria-label', `Go to card ${index + 1}`);
+                    dot.style.setProperty('--dot-color', dotColors[index % dotColors.length]);
+                    dot.addEventListener('click', () => scrollToCard(index));
+                    dotsWrap.appendChild(dot);
+                }
+
+                if (spine) {
+                    const segment = document.createElement('span');
+                    segment.className = 'spine-segment';
+                    segment.style.setProperty('--spine-color', cardColors[index % cardColors.length]);
+                    spine.appendChild(segment);
+                }
+            });
+
+            function setActive(index) {
+                activeIndex = Math.max(0, Math.min(cards.length - 1, index));
+                cards.forEach((card, i) => {
+                    card.classList.toggle('is-active', i === activeIndex);
+                    card.classList.toggle('is-before', i < activeIndex);
+                    card.classList.toggle('is-after', i > activeIndex);
+                    if (i <= activeIndex) card.classList.add('has-entered');
+                });
+                document.querySelectorAll('.progress-dots button').forEach((dot, i) => dot.classList.toggle('active', i === activeIndex));
+                document.querySelectorAll('.spine-segment').forEach((segment, i) => segment.classList.toggle('active', i === activeIndex));
+            }
+
+            function scrollToCard(index) {
+                const target = cards[Math.max(0, Math.min(cards.length - 1, index))];
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            const cardObserver = new IntersectionObserver((entries) => {
+                const visible = entries
+                    .filter(entry => entry.isIntersecting)
+                    .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+                if (visible) setActive(cards.indexOf(visible.target));
+            }, { threshold: [0.32, 0.48, 0.64, 0.8] });
+            cards.forEach(card => cardObserver.observe(card));
+            setActive(0);
+
+            window.addEventListener('scroll', () => {
+                if (header) header.style.opacity = window.scrollY > 12 ? '0.98' : '1';
+                cards.forEach(card => {
+                    const rect = card.getBoundingClientRect();
+                    const progress = Math.min(1, Math.max(0, -rect.top / Math.max(1, rect.height)));
+                    card.style.setProperty('--card-progress', progress.toFixed(3));
+                });
+            }, { passive: true });
+
+            if (menuToggle && navLinks) {
+                menuToggle.addEventListener('click', () => navLinks.classList.toggle('active'));
+            }
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    const targetEl = document.querySelector(targetId);
+                    if (targetEl) {
+                        e.preventDefault();
+                        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        if (navLinks) navLinks.classList.remove('active');
+                    }
+                });
+            });
+
+            // Swipe gesture: swipe-up advances, swipe-down goes back, with velocity awareness.
+            let touchStartY = 0;
+            let touchStartTime = 0;
+            window.addEventListener('touchstart', event => {
+                const touch = event.changedTouches[0];
+                touchStartY = touch.clientY;
+                touchStartTime = performance.now();
+            }, { passive: true });
+            window.addEventListener('touchend', event => {
+                const touch = event.changedTouches[0];
+                const deltaY = touchStartY - touch.clientY;
+                const elapsed = Math.max(1, performance.now() - touchStartTime);
+                const velocity = Math.abs(deltaY) / elapsed;
+                if (Math.abs(deltaY) > 55 && velocity > 0.28) {
+                    scrollToCard(activeIndex + (deltaY > 0 ? 1 : -1));
+                }
+            }, { passive: true });
+
+            // Accordion
+            document.querySelectorAll('.accordion-btn').forEach(acc => {
+                acc.addEventListener('click', function() {
+                    const expanded = this.getAttribute('aria-expanded') === 'true' || false;
+                    this.setAttribute('aria-expanded', !expanded);
+                    const content = this.nextElementSibling;
+                    content.style.maxHeight = !expanded ? content.scrollHeight + 'px' : null;
+                });
+            });
+
+            // Tabs
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabPanels = document.querySelectorAll('.tab-panel');
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    tabPanels.forEach(p => p.classList.remove('active'));
+                    btn.classList.add('active');
+                    const targetPanel = document.getElementById(btn.dataset.target);
+                    if (targetPanel) targetPanel.classList.add('active');
+                });
+            });
+
+            // Password Strength Checker
+            const pwInput = document.getElementById('pw-input');
+            const pwBar = document.getElementById('pw-bar');
+            const pwMsg = document.getElementById('pw-msg');
+            if (pwInput && pwBar && pwMsg) {
+                pwInput.addEventListener('input', function() {
+                    const val = this.value;
+                    let strength = 0;
+                    if (val.length > 0) strength += 20;
+                    if (val.length >= 8) strength += 20;
+                    if (val.length >= 12) strength += 20;
+                    if (/[A-Z]/.test(val) && /[a-z]/.test(val)) strength += 20;
+                    if (/[0-9]/.test(val) && /[^A-Za-z0-9]/.test(val)) strength += 20;
+                    pwBar.style.width = strength + '%';
+                    if (val.length === 0) {
+                        pwBar.style.width = '0%';
+                        pwBar.style.backgroundColor = 'transparent';
+                        pwMsg.innerText = 'Strength: None';
+                        pwMsg.style.color = 'var(--navy)';
+                    } else if (strength < 40) {
+                        pwBar.style.backgroundColor = '#ef4444';
+                        pwMsg.innerText = 'Strength: Weak (Easily cracked by automation)';
+                        pwMsg.style.color = '#ef4444';
+                    } else if (strength < 80) {
+                        pwBar.style.backgroundColor = '#F59E0B';
+                        pwMsg.innerText = 'Strength: Moderate (Vulnerable to dictionary attacks)';
+                        pwMsg.style.color = '#B45309';
+                    } else {
+                        pwBar.style.backgroundColor = '#3B82F6';
+                        pwMsg.innerText = 'Strength: Strong (Secure against brute-force)';
+                        pwMsg.style.color = '#2563EB';
+                    }
+                });
+            }
+
+            // Badge reveal
+            const badges = document.querySelectorAll('.section-badge');
+            const badgeObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('visible');
+                });
+            }, { threshold: 0.2 });
+            badges.forEach(badge => badgeObserver.observe(badge));
+        });
+</script>
+<!-- Schema -->
+<script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "How to Password Protect an Excel File — Opening and Editing",
+      "description": "Learn how to password protect an Excel file from opening or editing. A complete guide comparing native AES-256 encryption, permissions, and third-party tools.",
+      "author": {
+        "@type": "Organization",
+        "name": "Editorial Team"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "NewSoftwares.net"
+      }
+    }
+    </script>
+<script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How to password protect an Excel file from being opened?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Open the file, click File > Info > Protect Workbook > Encrypt with Password. Enter your password, confirm it, and save the file. The next time it is opened, Excel will prompt for the password."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How to remove password protection from Excel?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You must know the current password to remove it. Open the file and enter the password. Go to File > Info > Protect Workbook > Encrypt with Password. Delete the dots in the password field so it is completely blank, click OK, and save the file."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can Google open a password-protected Office file?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Google Drive and Google Sheets cannot decrypt AES-protected Excel files. You must remove the password using Microsoft Excel before you can import or edit the file in Google Workspace."
+          }
+        }
+      ]
+    }
+    </script>
+<script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "How to Secure Spreadsheets using Folder Lock",
+      "description": "A step-by-step process for vault-level encryption of Excel files.",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "name": "Create a Locker",
+          "text": "Open the software and create a new encrypted Locker."
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Set a Master Password",
+          "text": "Choose a strong password to protect every Excel file inside."
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Add Your Files",
+          "text": "Drag and drop your unprotected Excel files into the Locker interface."
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Close the Locker",
+          "text": "Once closed, the files disappear from your normal folders and are fully encrypted."
+        }
+      ]
+    }
+    </script>
+<script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Folder Lock",
+      "applicationCategory": "SecurityApplication",
+      "operatingSystem": "Windows PC",
+      "brand": {
+        "@type": "Organization",
+        "name": "NewSoftwares.net"
+      }
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://password-protect-excel-file.vercel.app/sitemap.xml
